@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>NotSoAdvanced Editor</title>
+  <title>CodeCanvas </title>
   <style>
     :root {
-      --bg-main: #1e1e2f;
-      --bg-sidebar: #2c2c3a;
-      --bg-editor: #1f1f2e;
-      --bg-tab: #3e3e5a;
-      --text-light: #f0f0f0;
-      --accent: #5ccfe6;
-      --hover: #4e4e6a;
+      --bg-main: 	#F8FAFC;
+      --bg-sidebar: 	#EEF2F6;
+      --bg-editor: 	#FFFFFF;
+      --bg-tab: 	#F1F5F9;
+      --text-light:	#1E293B;
+      --accent: #a3aab4;
+      --hover: 	#E0E7FF;
     }
     body {
       margin: 0;
@@ -27,7 +27,7 @@
       background-color: var(--bg-sidebar);
       padding: 10px;
       overflow-y: auto;
-      border-right: 1px solid #444;
+      border-right: 1px solid #969696;
     }
     .sidebar h3 {
       margin-top: 0;
@@ -60,7 +60,7 @@
       cursor: pointer;
       padding: 5px 10px;
       background-color: var(--accent);
-      color: #000;
+      color: #525252;
       border-radius: 4px;
     }
     .editor-area {
@@ -73,7 +73,7 @@
       resize: none;
       font-family: monospace;
       font-size: 14px;
-      background-color: #121212;
+      background-color: #939ba0;
       color: #fff;
     }
     .controls {
@@ -95,7 +95,7 @@
       opacity: 0.8;
     }
     .preview {
-      border-top: 1px solid #444;
+      border-top: 1px solid #F9FAFB;
     }
     iframe {
       width: 100%;
@@ -106,7 +106,7 @@
 </head>
 <body>
   <div class="sidebar">
-    <h3>Files</h3>
+    <h3>Code Canvas</h3>
     <ul class="file-tree" id="fileTree"></ul>
     <button onclick="createFile()">+ New File</button>
     <button onclick="uploadFile()">Upload</button>
