@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Finder-Style Code Editor</title>
+  <style>
+    :root {
+      --bg-main: #1e1e2f;
+      --bg-sidebar: #2c2c3a;
+      --bg-editor: #1f1f2e;
+      --bg-tab: #3e3e5a;
+      --text-light: #f0f0f0;
+      --accent: #5ccfe6;
+      --hover: #4e4e6a;
+    }
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      color: var(--text-light);
+      background-color: var(--bg-main);
+    }
+    .sidebar {
+      width: 250px;
+      background-color: var(--bg-sidebar);
+      padding: 10px;
+      overflow-y: auto;
+      border-right: 1px solid #444;
+    }
+    .sidebar h3 {
+      margin-top: 0;
+    }
+    .file-tree {
+      list-style: none;
+      padding-left: 10px;
+    }
+    .file-tree li {
+      cursor: pointer;
+      padding: 4px;
+      color: var(--text-light);
+    }
+    .file-tree li:hover {
+      background-color: var(--hover);
+    }
+    .editor {
+      flex: 1;
+      display: grid;
+      grid-template-rows: auto 1fr auto 1fr;
+      background-color: var(--bg-editor);
+    }
+    .tabbar {
+      background-color: var(--bg-tab);
+      padding: 10px;
+      display: flex;
+      gap: 10px;
+    }
+    .tabbar span {
+      cursor: pointer;
+      padding: 5px 10px;
+      background-color: var(--accent);
+      color: #000;
+      border-radius: 4px;
+    }
+    .editor-area {
+      padding: 10px;
+    }
+    textarea {
+      width: 100%;
+      height: 100%;
+      border: none;
+      resize: none;
+      font-family: monospace;
+      font-size: 14px;
+      background-color: #121212;
+      color: #fff;
+    }
+    .controls {
+      padding: 5px;
+      background-color: var(--bg-tab);
+      border-top: 1px solid #444;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .controls button {
+      padding: 5px 10px;
+      background-color: var(--accent);
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .controls button:hover {
+      opacity: 0.8;
+    }
+    .preview {
+      border-top: 1px solid #444;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h3>Files</h3>
+    <ul class="file-tree" id="fileTree"></ul>
+    <button onclick="createFile()">+ New File</button>
+    <button onclick="uploadFile()">Upload</button>
+    <input type="file" id="fileInput" style="display:none" />
+  </div>
+  <div class="editor">
+    <div class="tabbar" id="tabbar"></div>
+    <div class="editor-area">
+      <textarea id="editor" placeholder="Start coding..."></textarea>
+    </div>
+    <div class="controls">
+      <button onclick="runCode()">Run</button>
+      <button onclick="refreshPreview()">Refresh</button>
+      <button onclick="clearEditor()">Clear</button>
+      <button onclick="copyCode()">Copy</button>
+    </div>
+    <div class="preview">
+      <iframe id="preview"></iframe>
+    </div>
+  </div>
+
+  <script>
+    let files = {
+      'index.html': '<h1>Hello World</h1>',
+      'style.css': 'h1 { color: blue; }',
+      'script.js': 'console.log("Hello JS")'
+    };
+    let currentFile = 'index.html';
+
+    function renderFileTree() {
+      const fileTree = document.getElementById('fileTree');
+      fileTree.innerHTML = '';
+      for (const file in files) {
+        const li = document.createElement('li');
+        li.textContent = file;
+        li.onclick = () => openFile(file);
+        fileTree.appendChild(li);
+      }
+    }
+
+    function openFile(name) {
+      saveCurrentFile();
+      currentFile = name;
+      document.getElementById('editor').value = files[name];
+      renderTabs();
+    }
+
+    function saveCurrentFile() {
+      if (currentFile) {
+        files[currentFile] = document.getElementById('editor').value;
+      }
+    }
+
+    function renderTabs() {
+      const tabbar = document.getElementById('tabbar');
+      tabbar.innerHTML = '';
+      const span = document.createElement('span');
+      span.textContent = currentFile;
+      tabbar.appendChild(span);
+    }
+
+    function createFile() {
+      const name = prompt('File name (e.g., new.html):');
+      if (name && !files[name]) {
+        files[name] = '';
+        renderFileTree();
+      }
+    }
+
+    function uploadFile() {
+      document.getElementById('fileInput').click();
+    }
+
+    document.getElementById('fileInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          files[file.name] = event.target.result;
+          renderFileTree();
+          alert(`File '${file.name}' uploaded. You can use it as: <img src="${file.name}">`);
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    function runCode() {
+      saveCurrentFile();
+      const html = files['index.html'] || '';
+      const css = files['style.css'] || '';
+      const js = files['script.js'] || '';
+      const full = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <style>${css}</style>
+          </head>
+          <body>
+            ${html}
+            <script>${js}<\/script>
+          </body>
+        </html>
+      `;
+      document.getElementById('preview').srcdoc = full;
+    }
+
+    function refreshPreview() {
+      runCode();
+    }
+
+    function clearEditor() {
+      document.getElementById('editor').value = '';
+    }
+
+    function copyCode() {
+      const text = document.getElementById('editor').value;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Code copied to clipboard!');
+      });
+    }
+
+    // Init
+    renderFileTree();
+    openFile('index.html');
+  </script>
+</body>
+</html>
